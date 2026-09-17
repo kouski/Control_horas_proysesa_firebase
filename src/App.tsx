@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { db } from './firebase'
+import { db, auth } from './firebase'
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth'
 import {
   collection,
   doc,
@@ -326,6 +327,34 @@ function DayMetaModal({
 }
 
 export default function App() {
+  const [user, setUser] = useState<User | null>(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [authError, setAuthError] = useState('')
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u)
+      setAuthLoading(false)
+    })
+    return () => unsub()
+  }, [])
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault()
+    setAuthError('')
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+    } catch {
+      setAuthError('Correo o contraseña incorrectos')
+    }
+  }
+
+  function handleLogout() {
+    signOut(auth)
+  }
+
   const today = new Date()
   const [data, setData] = useState<AppData>(initialData)
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
@@ -647,6 +676,31 @@ export default function App() {
     [workerRows],
   )
 
+  if (authLoading) {
+    return <div style={{ padding: 40, textAlign: 'center' }}>Comprobando seguridad...</div>
+  }
+
+  if (!user) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f6f8fa' }}>
+        <form onSubmit={handleLogin} className="card" style={{ width: 340, padding: 32, display: 'flex', flexDirection: 'column', gap: 16, boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
+          <h2 style={{ margin: 0, textAlign: 'center', fontSize: 24 }}>Área Privada</h2>
+          <p style={{ margin: 0, textAlign: 'center', color: '#666', fontSize: 14 }}>Inicia sesión para acceder a las horas</p>
+          {authError && <p style={{ color: 'red', margin: 0, fontSize: 14, textAlign: 'center' }}>{authError}</p>}
+          <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 14, fontWeight: 500 }}>
+            Correo
+            <input type="email" placeholder="correo@ejemplo.com" value={email} onChange={e => setEmail(e.target.value)} required />
+          </label>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 14, fontWeight: 500 }}>
+            Contraseña
+            <input type="password" placeholder="********" value={password} onChange={e => setPassword(e.target.value)} required />
+          </label>
+          <button type="submit" className="button full-width" style={{ marginTop: 8 }}>Entrar</button>
+        </form>
+      </div>
+    )
+  }
+
   return (
     <div className="app-shell">
       {loading && (
@@ -666,11 +720,12 @@ export default function App() {
         <div className="toolbar">
           <button className="button button-secondary" onClick={() => changeMonth(-1)}>‹ Mes anterior</button>
           <button className="button button-secondary" onClick={() => changeMonth(1)}>Mes siguiente ›</button>
-          <button className="button" onClick={exportJson}>Crear copia de seguridad</button>
+          <button className="button" onClick={exportJson}>Copiar base de datos</button>
           <label className="file-button button button-secondary">
-            Restaurar copia
+            Restaurar
             <input type="file" accept="application/json" onChange={importJson} hidden />
           </label>
+          <button className="button button-secondary" onClick={handleLogout} style={{ border: '1px solid #ff4d4f', color: '#ff4d4f' }}>Salir</button>
         </div>
       </header>
 

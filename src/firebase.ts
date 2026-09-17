@@ -3,13 +3,13 @@ import { getFirestore } from 'firebase/firestore'
 import { getAnalytics } from "firebase/analytics"
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyBgCAtnL7nQ2zCdPe2-3iGs8Jhz8NH99F8",
+  authDomain: "control-horas-proysesa.firebaseapp.com",
+  projectId: "control-horas-proysesa",
+  storageBucket: "control-horas-proysesa.firebasestorage.app",
+  messagingSenderId: "281923267568",
+  appId: "1:281923267568:web:a32b34531be9d046d40b35",
+  measurementId: "G-65ZZRQVGQW"
 }
 
 const app = initializeApp(firebaseConfig)

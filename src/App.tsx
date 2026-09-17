@@ -272,7 +272,7 @@ function DayCell({
         className="day-hours-input"
         type="number"
         min="0"
-        step="0.25"
+        step="1"
         value={entry.workedHours === 0 ? '' : String(entry.workedHours)}
         onChange={(e) => onHoursChange(numberOrZero(e.target.value))}
         onBlur={onHoursBlur}
